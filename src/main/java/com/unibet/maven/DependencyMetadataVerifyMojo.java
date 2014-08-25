@@ -22,6 +22,13 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
+/**
+ * <p>This mojo will try to resolve and process metadata artifacts for all direct and transitive (if defined)
+ * dependencies. Considering {@link com.unibet.maven.DependencyMetadataGenerateMojo#applyOnPreviousVersions}
+ * feature all upper dependency versions shall be considered as well.</p>
+ *
+ * @author Ilja Bobkevic <ilja.bobkevic@unibet.com>
+ */
 @Mojo(name = "verify", defaultPhase = LifecyclePhase.PROCESS_RESOURCES, threadSafe = true)
 public class DependencyMetadataVerifyMojo extends AbstractDependencyMetadataMojo {
 

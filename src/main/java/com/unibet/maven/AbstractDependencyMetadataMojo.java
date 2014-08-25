@@ -15,6 +15,11 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.util.List;
 
+/**
+ * <p>Abstract for dependency metadata plugin mojos</p>
+ *
+ * @author Ilja Bobkevic <ilja.bobkevic@unibet.com>
+ */
 public abstract class AbstractDependencyMetadataMojo extends AbstractMojo {
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
     public static final String METADATA_ARTIFACT_TYPE = "json";
@@ -27,9 +32,12 @@ public abstract class AbstractDependencyMetadataMojo extends AbstractMojo {
     @Parameter(defaultValue = "${localRepository}", readonly = true)
     protected ArtifactRepository localRepository;
 
-    @Parameter(defaultValue = "${project.remoteArtifactRepositories}")
+    @Parameter(defaultValue = "${project.remoteArtifactRepositories}", readonly = true)
     protected List<ArtifactRepository> remoteRepositories;
 
+    /**
+     * This variable will be used to determine whether plugin supports received metadata format
+     */
     @Parameter(property = "dependency.metadata.formatVersion", defaultValue = "1")
     protected int formatVersion;
 

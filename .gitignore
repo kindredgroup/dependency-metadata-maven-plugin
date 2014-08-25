@@ -3,6 +3,7 @@
 
 ## intellij
 *.iml
+/.idea
 
 ## generic files to ignore
 *~
