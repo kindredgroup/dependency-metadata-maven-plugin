@@ -97,8 +97,9 @@ public class DependencyMetadataVerifyMojo extends AbstractDependencyMetadataMojo
         }
     }
 
+    @SuppressWarnings("unchecked")
     private Set<Artifact> getDependencies(boolean transitive) throws MojoExecutionException {
-        Set artifacts = null;
+        Set<Artifact> artifacts;
         try {
             artifacts = project.createArtifacts(this.artifactFactory, null, null);
             if (transitive) {
@@ -111,8 +112,9 @@ public class DependencyMetadataVerifyMojo extends AbstractDependencyMetadataMojo
         return artifacts;
     }
 
+    @SuppressWarnings("unchecked")
     private List<ArtifactVersion> getHigherOrEqualVersions(Artifact artifact) throws MojoExecutionException {
-        List<ArtifactVersion> higherVersions = null;
+        List<ArtifactVersion> higherVersions;
         try {
             List<ArtifactVersion> versions = artifactMetadataSource.retrieveAvailableVersions(artifact, localRepository, remoteRepositories);
             higherVersions = new ArrayList<ArtifactVersion>(versions.size());
