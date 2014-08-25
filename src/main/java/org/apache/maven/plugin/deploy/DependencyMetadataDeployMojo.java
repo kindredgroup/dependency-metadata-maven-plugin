@@ -19,6 +19,13 @@ import java.util.regex.Pattern;
 import static com.unibet.maven.AbstractDependencyMetadataMojo.METADATA_ARTIFACT_CLASSIFIER;
 import static com.unibet.maven.AbstractDependencyMetadataMojo.METADATA_ARTIFACT_TYPE;
 
+/**
+ * <p>Mojo used to deploy existing metadata artifact to remote repository.</p>
+ * <p>Mostly copied from maven-deploy-plugin {@link org.apache.maven.plugin.deploy.DeployMojo} class</p>
+ * <p>Please note that only metadata artifact will be deploy, even excluding project's pom.xml</p>
+ *
+ * @author Ilja Bobkevic <ilja.bobkevic@unibet.com>
+ */
 @Mojo(name = "deploy", defaultPhase = LifecyclePhase.DEPLOY, threadSafe = true)
 public class DependencyMetadataDeployMojo extends AbstractDeployMojo {
 
