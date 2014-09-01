@@ -36,7 +36,11 @@ import org.apache.maven.project.artifact.InvalidDependencyVersionException;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 /**
  * <p>This mojo will try to resolve and process metadata artifacts for all direct and transitive (if defined)
@@ -67,13 +71,15 @@ public class DependencyMetadataVerifyMojo extends AbstractDependencyMetadataMojo
             List<ArtifactVersion> versions = getHigherOrEqualVersions(artifact);
 
             for (ArtifactVersion version : versions) {
-                Artifact metadataArtifact = artifactFactory.createArtifactWithClassifier(artifact.getGroupId(), artifact.getArtifactId(), version.toString(), METADATA_ARTIFACT_TYPE, METADATA_ARTIFACT_CLASSIFIER);
+                Artifact metadataArtifact = artifactFactory.createArtifactWithClassifier(artifact.getGroupId(),
+                        artifact.getArtifactId(), version.toString(), METADATA_ARTIFACT_TYPE, METADATA_ARTIFACT_CLASSIFIER);
                 for (ArtifactRepository repository : remoteRepositories) {
                     try {
                         resolver.resolve(metadataArtifact, remoteRepositories, localRepository);
                         logger.debug("Artifact {} found in {}", metadataArtifact, repository.getUrl());
                         Metadata metadata = parseMetadataJson(metadataArtifact.getFile());
-                        if (metadata.formatVersion == this.formatVersion && (metadata.applyOnPreviousVersions || metadataArtifact.getVersion().equals(artifact.getVersion()))) {
+                        if (metadata.formatVersion == this.formatVersion &&
+                                (metadata.applyOnPreviousVersions || metadataArtifact.getVersion().equals(artifact.getVersion()))) {
                             if (metadata.fail) {
                                 logger.error("------------------------------------------------------------------------");
                                 logger.error("Metadata source: {}", metadataArtifact);
@@ -103,7 +109,8 @@ public class DependencyMetadataVerifyMojo extends AbstractDependencyMetadataMojo
         try {
             artifacts = project.createArtifacts(this.artifactFactory, null, null);
             if (transitive) {
-                ArtifactResolutionResult arr = artifactResolver.resolveTransitively(artifacts, project.getArtifact(), project.getManagedVersionMap(), localRepository, remoteRepositories, artifactMetadataSource);
+                ArtifactResolutionResult arr = artifactResolver.resolveTransitively(artifacts, project.getArtifact(),
+                        project.getManagedVersionMap(), localRepository, remoteRepositories, artifactMetadataSource);
                 artifacts.addAll(arr.getArtifacts());
             }
         } catch (InvalidDependencyVersionException | ArtifactNotFoundException | ArtifactResolutionException e) {
@@ -116,8 +123,9 @@ public class DependencyMetadataVerifyMojo extends AbstractDependencyMetadataMojo
     private List<ArtifactVersion> getHigherOrEqualVersions(Artifact artifact) throws MojoExecutionException {
         List<ArtifactVersion> higherVersions;
         try {
-            List<ArtifactVersion> versions = artifactMetadataSource.retrieveAvailableVersions(artifact, localRepository, remoteRepositories);
-            higherVersions = new ArrayList<ArtifactVersion>(versions.size());
+            List<ArtifactVersion> versions = artifactMetadataSource.retrieveAvailableVersions(artifact,
+                    localRepository, remoteRepositories);
+            higherVersions = new ArrayList<>(versions.size());
             for (ArtifactVersion version : versions) {
                 if (version.compareTo(artifact.getSelectedVersion()) >= 0) {
                     higherVersions.add(version);
