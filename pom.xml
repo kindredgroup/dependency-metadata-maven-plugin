@@ -37,6 +37,7 @@
         <version.maven.plugins>2.8</version.maven.plugins>
         <version.maven.compiler>3.1</version.maven.compiler>
         <version.java>1.7</version.java>
+        <version.maven.plugin.plugin>3.3</version.maven.plugin.plugin>
     </properties>
 
     <dependencies>
