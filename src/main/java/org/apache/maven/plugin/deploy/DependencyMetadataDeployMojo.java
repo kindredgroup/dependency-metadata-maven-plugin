@@ -27,8 +27,12 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FilenameFilter;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -44,6 +48,8 @@ import static com.unibet.maven.AbstractDependencyMetadataMojo.METADATA_ARTIFACT_
  */
 @Mojo(name = "deploy", defaultPhase = LifecyclePhase.DEPLOY, threadSafe = true)
 public class DependencyMetadataDeployMojo extends AbstractDeployMojo {
+
+    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private static final Pattern ALT_REPO_SYNTAX_PATTERN = Pattern.compile("(.+)::(.+)::(.+)");
 
@@ -83,23 +89,64 @@ public class DependencyMetadataDeployMojo extends AbstractDeployMojo {
     @Parameter(property = "altReleaseDeploymentRepository")
     private String altReleaseDeploymentRepository;
 
+    /**
+     * If true it will attempt to list metadata artifact files and attach it to the project
+     */
+    @Parameter(property = "dependency.metadata.artifactAutoScan", defaultValue = "false")
+    private boolean artifactAutoScan;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
-        Artifact metadataArtifact = artifactFactory.createArtifactWithClassifier(project.getGroupId(),
-                project.getArtifactId(), project.getVersion().toString(),
-                METADATA_ARTIFACT_TYPE, METADATA_ARTIFACT_CLASSIFIER);
+        @SuppressWarnings("unchecked")
+        List<Artifact> attachedArtifacts = project.getAttachedArtifacts();
 
-        String filename = project.getArtifactId() + "-" + project.getVersion() +
-                "-" + METADATA_ARTIFACT_CLASSIFIER + "." + METADATA_ARTIFACT_TYPE;
-        File metadataArtifactFile = new File(project.getBuild().getDirectory() + File.separator + filename);
+        if (artifactAutoScan) {
+            logger.info("Attempting metadata artifact scan...");
+            final String fileNameRegex = project.getArtifactId() + "-(.+)-" + METADATA_ARTIFACT_CLASSIFIER + "\\." +
+                    METADATA_ARTIFACT_TYPE;
+            File targetDirectory = new File(project.getBuild().getDirectory());
+            String[] metadataArtifactFileNames = targetDirectory.list(new FilenameFilter() {
+                public boolean accept(File directory, String fileName) {
+                    return fileName.matches(fileNameRegex);
+                }
+            });
 
-        ArtifactRepository repo = getDeploymentRepository(project);
+            for (String metadataArtifactFileName : metadataArtifactFileNames) {
+                Pattern pattern = Pattern.compile(fileNameRegex);
+                Matcher matcher = pattern.matcher(metadataArtifactFileName);
+                if (matcher.find()) {
+                    String version = matcher.group();
+                    Artifact metadataArtifact = artifactFactory.createArtifactWithClassifier(project.getGroupId(),
+                            project.getArtifactId(), version, METADATA_ARTIFACT_TYPE,
+                            METADATA_ARTIFACT_CLASSIFIER);
+                    attachedArtifacts.add(metadataArtifact);
+                    logger.info("Metadata artifact automatically attached {}", metadataArtifact);
+                } else {
+                    throw new MojoFailureException("Failed parsing version from artifact file " +
+                            metadataArtifactFileName);
+                }
+            }
+        }
 
-        try {
-            deploy(metadataArtifactFile, metadataArtifact, repo, getLocalRepository());
-        } catch (ArtifactDeploymentException e) {
-            throw new MojoExecutionException("Failed deploying metadata artifact!", e);
+        if (attachedArtifacts.isEmpty()) {
+            logger.warn("Project does not contain any attached artifacts. Skipping...");
+            return;
+        }
+
+        for (Artifact attachedArtifact : attachedArtifacts) {
+            if (METADATA_ARTIFACT_CLASSIFIER.equals(attachedArtifact.getClassifier()) &&
+                    METADATA_ARTIFACT_TYPE.equals(attachedArtifact.getType())) {
+                String filename = attachedArtifact.getArtifactId() + "-" + attachedArtifact.getVersion() +
+                        "-" + attachedArtifact.getClassifier() + "." + attachedArtifact.getType();
+                File metadataArtifactFile = new File(project.getBuild().getDirectory() + File.separator + filename);
+
+                ArtifactRepository repo = getDeploymentRepository(project);
+                try {
+                    deploy(metadataArtifactFile, attachedArtifact, repo, getLocalRepository());
+                } catch (ArtifactDeploymentException e) {
+                    throw new MojoExecutionException("Failed deploying metadata artifact!", e);
+                }
+            }
         }
     }
 
