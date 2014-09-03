@@ -7,9 +7,6 @@ public class Metadata {
     public int formatVersion;
 
     @JsonProperty
-    public boolean applyOnPreviousVersions;
-
-    @JsonProperty
     public String message;
 
     @JsonProperty

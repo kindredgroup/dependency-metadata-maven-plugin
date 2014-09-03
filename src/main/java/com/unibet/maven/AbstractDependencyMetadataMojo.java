@@ -28,7 +28,6 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.util.List;
 
 /**
@@ -54,7 +53,7 @@ public abstract class AbstractDependencyMetadataMojo extends AbstractMojo {
     /**
      * This variable will be used to determine whether plugin supports received metadata format
      */
-    @Parameter(property = "dependency.metadata.formatVersion", defaultValue = "1")
+    @Parameter(property = "dependency.metadata.formatVersion", defaultValue = "2")
     protected int formatVersion;
 
     @Component
@@ -65,14 +64,8 @@ public abstract class AbstractDependencyMetadataMojo extends AbstractMojo {
 
     @Component
     protected ArtifactMetadataSource artifactMetadataSource;
-    private File artifactFile;
 
-    public File getArtifactFile() {
-        if (null == artifactFile) {
-            String filename = project.getArtifactId() + "-" + project.getVersion() +
-                    "-" + METADATA_ARTIFACT_CLASSIFIER + "." + METADATA_ARTIFACT_TYPE;
-            artifactFile = new File(project.getBuild().getDirectory() + File.separator + filename);
-        }
-        return artifactFile;
-    }
+    @Component
+    protected ArtifactResolver resolver;
+
 }
