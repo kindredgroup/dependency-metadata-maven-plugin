@@ -64,13 +64,13 @@ public class DependencyMetadataVerifyMojo extends AbstractDependencyMetadataMojo
                     if (metadata.fail) {
                         logger.error("------------------------------------------------------------------------");
                         logger.error("Metadata source: {}", metadataArtifact);
-                        logger.error("{}" + metadata.message);
+                        logger.error(metadata.message);
                         logger.error("------------------------------------------------------------------------");
                         throw new MojoFailureException("There were dependency metadata failures");
                     } else {
                         logger.warn("------------------------------------------------------------------------");
                         logger.warn("Metadata source: {}", metadataArtifact);
-                        logger.warn("{}" + metadata.message);
+                        logger.warn(metadata.message);
                         logger.warn("------------------------------------------------------------------------");
                     }
                 }
