@@ -24,7 +24,7 @@ Include metadata verification before project compilation:
         <plugins>
             ...
             <plugin>
-                <groupId>com.unibet.maven</groupId>
+                <groupId>com.unibet.maven.plugins</groupId>
                 <artifactId>dependency-metadata-maven-plugin</artifactId>
                 <version>1.0.0</version>
                 <executions>
@@ -47,12 +47,12 @@ Include metadata verification before project compilation:
 
 Generate default metadata artifact for the current project:
 ```
-mvn com.unibet.maven:dependency-metadata-maven-plugin:generate
+mvn com.unibet.maven.plugins:dependency-metadata-maven-plugin:generate
 ```
 
 Deploy existing metadata artifact to the alternative repository:
 ```
-mvn com.unibet.maven:dependency-metadata-maven-plugin:deploy -DaltDeploymentRepository=my-metadata-repository::default::http://my.repository.com/nexus/content/repositories/metadata
+mvn com.unibet.plugins.maven:dependency-metadata-maven-plugin:deploy -DaltDeploymentRepository=my-metadata-repository::default::http://my.repository.com/nexus/content/repositories/metadata
 ```
 
 TODO

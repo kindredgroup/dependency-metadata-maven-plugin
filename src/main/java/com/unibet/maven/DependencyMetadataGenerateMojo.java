@@ -19,6 +19,7 @@ package com.unibet.maven;
 import com.unibet.maven.domain.Metadata;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.metadata.ArtifactMetadataRetrievalException;
+import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.resolver.ArtifactNotFoundException;
 import org.apache.maven.artifact.resolver.ArtifactResolutionException;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
@@ -33,6 +34,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.apache.maven.artifact.repository.ArtifactRepositoryPolicy.UPDATE_POLICY_ALWAYS;
 
 /**
  * <p>Metadata artifact generation mojo</p>
@@ -72,6 +75,13 @@ public class DependencyMetadataGenerateMojo extends AbstractDependencyMetadataMo
         }
 
         if (applyOnPreviousVersions) {
+            // Enable both releases and snapshot repositories and always update the metadata
+            for (ArtifactRepository repository : remoteRepositories) {
+                repository.getReleases().setUpdatePolicy(UPDATE_POLICY_ALWAYS);
+                repository.getReleases().setEnabled(true);
+                repository.getSnapshots().setUpdatePolicy(UPDATE_POLICY_ALWAYS);
+                repository.getSnapshots().setEnabled(true);
+            }
             versions.addAll(getLowerVersions(artifact));
         }
 
